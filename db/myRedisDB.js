@@ -19,7 +19,7 @@ async function getTweet(tweetId) {
     rclient.quit();
   }
 }
-async function createTweet(text) {
+async function createTweet(user , text) {
   let rclient;
   try {
     rclient = await getRConnection();
@@ -29,8 +29,9 @@ async function createTweet(text) {
     console.log("creating tweet", nextId, text);
     const key = `tweet:${nextId}`;
     await rclient.hSet(key, {
-      user: "duto_guerra",
+      user: user,
       text: text,
+      id: nextId
     });
 
     await rclient.rPush("tweets", key);
@@ -44,32 +45,36 @@ async function getTweets() {
   try {
     rclient = await getRConnection();
 
-    const tweetIds = await rclient.lRange("tweets", -5, -1)
+    const tweetIds = await rclient.lRange("tweets", -5, -1);
 
     console.log("tweets tweetIds", tweetIds);
 
-
-    const tweets = [];
+    const tweets =[];
     for (let tId of tweetIds) {
       const tweet = await getTweet(tId);
       tweets.push(tweet);
     }
 
     return tweets;
-
   } finally {
     rclient.quit();
   }
 }
 
-// async function test() {
-//   const text = await getTweet(0);
+async function deleteTweet(tweetId) {
+  let rclient;
+  try {
+    rclient = await getRConnection();
 
-//   console.log("result", text);
-// }
-
-// test();
+    const key = `tweet:${tweetId}`;
+    await rclient.lRem("tweets", 0, key);
+    await rclient.del(key);
+  } finally {
+    rclient.quit();
+  }
+}
 
 module.exports.getTweet = getTweet;
 module.exports.createTweet = createTweet;
 module.exports.getTweets = getTweets;
+module.exports.deleteTweet = deleteTweet;

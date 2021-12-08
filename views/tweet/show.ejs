@@ -1,1 +1,8 @@
-<div class="mb-3">@<%= tweet.user %>: <%= tweet.text %></div>
+<div class="mb-3">@<%= tweet.user %>: <%= tweet.text %>
+
+  <form action=<%= `/tweet/${tweet.id}/delete` %> method="POST">
+    <input type="hidden" name="id" value="<%= tweet.id %>">
+    <button class="btn btn-danger">x</button>
+  </form>
+
+</div>
