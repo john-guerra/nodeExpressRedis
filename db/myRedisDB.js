@@ -1,15 +1,15 @@
-const { createClient } = require("redis");
+import { createClient } from "redis";
 
-async function getRConnection() {
-  let rclient = createClient();
+const getRConnection = async () => {
+  const rclient = createClient();
   rclient.on("error", (err) => console.log("Redis Client Error", err));
   await rclient.connect();
 
   console.log("redis connected");
   return rclient;
-}
+};
 
-async function getTweet(tweetId) {
+const getTweet = async (tweetId) => {
   let rclient;
   try {
     rclient = await getRConnection();
@@ -18,8 +18,9 @@ async function getTweet(tweetId) {
   } finally {
     rclient.quit();
   }
-}
-async function createTweet(user , text) {
+};
+
+const createTweet = async (user, text) => {
   let rclient;
   try {
     rclient = await getRConnection();
@@ -31,16 +32,16 @@ async function createTweet(user , text) {
     await rclient.hSet(key, {
       user: user,
       text: text,
-      id: nextId
+      id: nextId,
     });
 
     await rclient.rPush("tweets", key);
   } finally {
     rclient.quit();
   }
-}
+};
 
-async function getTweets() {
+const getTweets = async () => {
   let rclient;
   try {
     rclient = await getRConnection();
@@ -49,7 +50,7 @@ async function getTweets() {
 
     console.log("tweets tweetIds", tweetIds);
 
-    const tweets =[];
+    const tweets = [];
     for (let tId of tweetIds) {
       const tweet = await getTweet(tId);
       tweets.push(tweet);
@@ -59,9 +60,9 @@ async function getTweets() {
   } finally {
     rclient.quit();
   }
-}
+};
 
-async function deleteTweet(tweetId) {
+const deleteTweet = async (tweetId) => {
   let rclient;
   try {
     rclient = await getRConnection();
@@ -72,9 +73,13 @@ async function deleteTweet(tweetId) {
   } finally {
     rclient.quit();
   }
-}
+};
 
-module.exports.getTweet = getTweet;
-module.exports.createTweet = createTweet;
-module.exports.getTweets = getTweets;
-module.exports.deleteTweet = deleteTweet;
+
+export default {
+  getRConnection,
+  getTweet,
+  createTweet,
+  getTweets,
+  deleteTweet,
+};

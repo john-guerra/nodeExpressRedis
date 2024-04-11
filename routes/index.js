@@ -1,14 +1,14 @@
-var express = require("express");
-var router = express.Router();
+import express from "express";
+const router = express.Router();
 
-const myDB = require("../db/myRedisDB.js");
+import myDB from "../db/myRedisDB.js";
 
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
   const myTweetsFromDB = await myDB.getTweets();
   res.render("index", { tweets: myTweetsFromDB });
 });
 
-router.post("/tweets/create", async function (req, res) {
+router.post("/tweets/create", async (req, res) => {
   try {
     const tweet = req.body;
 
@@ -20,15 +20,14 @@ router.post("/tweets/create", async function (req, res) {
   }
 });
 
-router.post("/tweet/:tweetId/delete", async function (req, res) {
+router.post("/tweet/:tweetId/delete", async (req, res) => {
   const tweetId = req.params.tweetId;
   try {
     await myDB.deleteTweet(tweetId);
     res.redirect("/");
-  }catch (e) {
-    res.status(200).send("Error creating tweet" + e);
+  } catch (e) {
+    res.status(200).send("Error deleting tweet" + e);
   }
-
 });
 
-module.exports = router;
+export default router;
